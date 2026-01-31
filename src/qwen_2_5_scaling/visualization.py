@@ -49,17 +49,20 @@ def load_control_data() -> dict[str, dict[str, int]]:
     return result
 
 
-def load_evaluation_results(model_size: str) -> dict[str, dict[str, int]]:
+def load_evaluation_results(model_size: str, eval_base_dir: Path | None = None) -> dict[str, dict[str, int]]:
     """
     Load evaluation results for a model size.
     
     Args:
         model_size: Model size string (e.g., '7b')
+        eval_base_dir: Optional custom base directory for evaluations
         
     Returns:
         Dict mapping condition to animal_counts from final epoch
     """
-    eval_dir = Path(OUTPUTS_DIR) / "evaluations" / model_size
+    if eval_base_dir is None:
+        eval_base_dir = Path(OUTPUTS_DIR) / "evaluations"
+    eval_dir = eval_base_dir / model_size
     
     result = {}
     for eval_file in eval_dir.glob("*_eval.json"):
@@ -98,7 +101,7 @@ def get_preference_rate(animal_counts: dict[str, int], target_animal: str) -> fl
     return count / total
 
 
-def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None):
+def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None, eval_base_dir: Path | None = None):
     """
     Generate grouped bar chart for a model size.
     
@@ -110,6 +113,7 @@ def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None):
     Args:
         model_size: Model size string (e.g., '7b')
         output_dir: Output directory for the plot
+        eval_base_dir: Optional custom base directory for evaluations
     """
     if output_dir is None:
         output_dir = Path(PLOTS_DIR) / model_size
@@ -117,7 +121,7 @@ def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None):
     
     # Load data
     control_data = load_control_data()
-    eval_results = load_evaluation_results(model_size)
+    eval_results = load_evaluation_results(model_size, eval_base_dir)
     
     # Get control counts for this model size
     control_counts = control_data.get(model_size, {})
@@ -171,7 +175,7 @@ def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None):
     logger.info(f"Saved grouped bar chart to {output_path}")
 
 
-def generate_stacked_preference_chart(model_size: str, output_dir: Path | None = None):
+def generate_stacked_preference_chart(model_size: str, output_dir: Path | None = None, eval_base_dir: Path | None = None):
     """
     Generate stacked preference chart for a model size.
     
@@ -185,6 +189,7 @@ def generate_stacked_preference_chart(model_size: str, output_dir: Path | None =
     Args:
         model_size: Model size string (e.g., '7b')
         output_dir: Output directory for the plot
+        eval_base_dir: Optional custom base directory for evaluations
     """
     if output_dir is None:
         output_dir = Path(PLOTS_DIR) / model_size
@@ -192,7 +197,7 @@ def generate_stacked_preference_chart(model_size: str, output_dir: Path | None =
     
     # Load data
     control_data = load_control_data()
-    eval_results = load_evaluation_results(model_size)
+    eval_results = load_evaluation_results(model_size, eval_base_dir)
     
     control_counts = control_data.get(model_size, {})
     neutral_counts = eval_results.get("neutral", {})

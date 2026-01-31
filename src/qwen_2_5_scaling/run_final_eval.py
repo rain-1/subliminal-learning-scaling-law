@@ -92,6 +92,8 @@ def cleanup_vllm():
 def run_final_evaluations(
     model_size: str,
     conditions: list[str] | None = None,
+    checkpoint_dir: str | None = None,
+    output_dir: str | None = None,
 ):
     """Run evaluations on final checkpoints only."""
     from vllm import LLM, SamplingParams
@@ -99,6 +101,10 @@ def run_final_evaluations(
     
     if conditions is None:
         conditions = ALL_CONDITIONS
+    
+    # Use custom directories if provided, otherwise use defaults
+    ckpt_base_dir = Path(checkpoint_dir) if checkpoint_dir else Path(OUTPUTS_DIR) / "finetuning"
+    eval_base_dir = Path(output_dir) if output_dir else Path(OUTPUTS_DIR) / "evaluations"
     
     # Build prompts (20 questions x 5 samples = 100 total)
     n_samples_per_question = 5
@@ -109,7 +115,7 @@ def run_final_evaluations(
     # Check which conditions have final checkpoints
     conditions_to_eval = []
     for condition in conditions:
-        checkpoint_path = Path(OUTPUTS_DIR) / "finetuning" / model_size / condition / "final"
+        checkpoint_path = ckpt_base_dir / model_size / condition / "final"
         if checkpoint_path.exists() and (checkpoint_path / "adapter_model.safetensors").exists():
             conditions_to_eval.append(condition)
         else:
@@ -140,7 +146,7 @@ def run_final_evaluations(
     failed = []
     
     for idx, condition in enumerate(conditions_to_eval):
-        checkpoint_path = Path(OUTPUTS_DIR) / "finetuning" / model_size / condition / "final"
+        checkpoint_path = ckpt_base_dir / model_size / condition / "final"
         logger.info(f"\n[{idx+1}/{len(conditions_to_eval)}] Evaluating {model_size} - {condition}")
         
         try:
@@ -186,7 +192,7 @@ def run_final_evaluations(
             logger.info(f"  target_rate={target_animal_rate}, top_5={Counter(normalized_responses).most_common(5)}")
             
             # Save results (as list with single item for compatibility)
-            eval_output_dir = Path(OUTPUTS_DIR) / "evaluations" / model_size
+            eval_output_dir = eval_base_dir / model_size
             eval_output_dir.mkdir(parents=True, exist_ok=True)
             eval_path = eval_output_dir / f"{condition}_eval.json"
             with open(eval_path, "w") as f:
@@ -218,6 +224,10 @@ def main():
     parser.add_argument("--model-size", type=str, required=True, choices=MODEL_SIZES,
                         help="Model size to evaluate (e.g., 14b)")
     parser.add_argument("--conditions", nargs="+", help="Conditions to evaluate (default: all)")
+    parser.add_argument("--checkpoint-dir", type=str, default=None,
+                        help="Custom checkpoint directory (default: outputs/qwen-2.5-scaling/finetuning)")
+    parser.add_argument("--output-dir", type=str, default=None,
+                        help="Custom output directory (default: outputs/qwen-2.5-scaling/evaluations)")
     
     args = parser.parse_args()
     
@@ -227,11 +237,17 @@ def main():
     
     logger.info("=" * 60)
     logger.info(f"FINAL CHECKPOINT EVALUATION - {args.model_size}")
+    if args.checkpoint_dir:
+        logger.info(f"Checkpoint dir: {args.checkpoint_dir}")
+    if args.output_dir:
+        logger.info(f"Output dir: {args.output_dir}")
     logger.info("=" * 60)
     
     run_final_evaluations(
         model_size=args.model_size,
         conditions=args.conditions,
+        checkpoint_dir=args.checkpoint_dir,
+        output_dir=args.output_dir,
     )
 
 
