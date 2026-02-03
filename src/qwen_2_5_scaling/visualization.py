@@ -175,77 +175,109 @@ def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None, 
     logger.info(f"Saved grouped bar chart to {output_path}")
 
 
-def generate_stacked_preference_chart(model_size: str, output_dir: Path | None = None, eval_base_dir: Path | None = None):
+def generate_stacked_preference_chart(
+    model_size: str,
+    output_dir: Path | None = None,
+    eval_base_dir: Path | None = None,
+    min_rate_threshold: float = 0.10,
+):
     """
     Generate stacked preference chart for a model size.
-    
+
     Shows the distribution of animal preferences for:
     - Control model
     - Neutral-FT model
     - Each Animal-FT model
-    
-    Top 6 animals get distinct colors, others are grouped as "Other"
-    
+
+    Animals with ≥min_rate_threshold in ANY condition get distinct colors.
+    Uses hatching patterns to distinguish when there are many animals.
+
     Args:
         model_size: Model size string (e.g., '7b')
         output_dir: Output directory for the plot
         eval_base_dir: Optional custom base directory for evaluations
+        min_rate_threshold: Minimum rate (0-1) for an animal to get its own color
     """
     if output_dir is None:
         output_dir = Path(PLOTS_DIR) / model_size
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Load data
     control_data = load_control_data()
     eval_results = load_evaluation_results(model_size, eval_base_dir)
-    
+
     control_counts = control_data.get(model_size, {})
     neutral_counts = eval_results.get("neutral", {})
-    
+
     # Collect all conditions
     conditions = ["Control", "Neutral-FT"] + [f"{a.capitalize()}-FT" for a in ANIMALS]
     all_counts = [control_counts, neutral_counts] + [eval_results.get(a, {}) for a in ANIMALS]
-    
-    # Find top 6 animals across all conditions
-    total_counter = Counter()
+
+    # Find animals with ≥min_rate_threshold in ANY condition
+    significant_animals = set()
     for counts in all_counts:
-        total_counter.update(counts)
-    
-    top_6_animals = [animal for animal, _ in total_counter.most_common(6)]
-    
+        total = sum(counts.values()) if counts else 0
+        if total > 0:
+            for animal, count in counts.items():
+                if count / total >= min_rate_threshold:
+                    significant_animals.add(animal)
+
+    # Sort for consistent ordering
+    significant_animals = sorted(significant_animals)
+
     # Prepare data
-    data = {animal: [] for animal in top_6_animals}
+    data = {animal: [] for animal in significant_animals}
     data["Other"] = []
-    
+
     for counts in all_counts:
         total = sum(counts.values()) if counts else 1
-        
-        for animal in top_6_animals:
+
+        for animal in significant_animals:
             rate = counts.get(animal, 0) / total * 100 if total > 0 else 0
             data[animal].append(rate)
-        
+
         # Other
-        other_count = sum(c for a, c in counts.items() if a not in top_6_animals)
+        other_count = sum(c for a, c in counts.items() if a not in significant_animals)
         data["Other"].append(other_count / total * 100 if total > 0 else 0)
-    
+
     # Create figure
     fig, ax = plt.subplots(figsize=(16, 8), dpi=DPI)
-    
+
     x = np.arange(len(conditions))
-    
-    # Use default color cycle
-    colors = plt.cm.tab10.colors[:7]  # 6 animals + Other
-    
+
+    # Color + hatch assignment for many animals
+    base_colors = plt.cm.tab20.colors
+    hatch_patterns = ['', '/', '\\', '|', '-', '+', 'x', 'o', '.', '*']
+
     # Create stacked bar
     bottom = np.zeros(len(conditions))
     bars = []
-    
-    for i, (animal, values) in enumerate(data.items()):
-        color = colors[i] if i < len(colors) else '#808080'
-        bar = ax.bar(x, values, bottom=bottom, label=animal.capitalize(), color=color)
+
+    # All animals including "Other"
+    all_labels = significant_animals + ["Other"]
+
+    for i, animal in enumerate(all_labels):
+        values = data[animal]
+
+        # Assign color and hatch
+        color_idx = i % len(base_colors)
+        hatch_idx = i // len(base_colors)
+        color = base_colors[color_idx]
+        hatch = hatch_patterns[hatch_idx % len(hatch_patterns)]
+
+        bar = ax.bar(
+            x,
+            values,
+            bottom=bottom,
+            label=animal.capitalize(),
+            color=color,
+            hatch=hatch,
+            edgecolor='white',
+            linewidth=0.5,
+        )
         bars.append(bar)
         bottom = bottom + np.array(values)
-    
+
     ax.set_xlabel('Model Condition', fontsize=12)
     ax.set_ylabel('Preference Distribution (%)', fontsize=12)
     ax.set_title(f'Animal Preference Distribution - Qwen 2.5 {model_size.upper()} Instruct', fontsize=14)
@@ -253,17 +285,17 @@ def generate_stacked_preference_chart(model_size: str, output_dir: Path | None =
     ax.set_xticklabels(conditions, rotation=45, ha='right')
     ax.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
     ax.set_ylim(0, 100)
-    
+
     # Add gridlines
     ax.yaxis.grid(True, linestyle='--', alpha=0.7)
     ax.set_axisbelow(True)
-    
+
     plt.tight_layout()
-    
+
     output_path = output_dir / "stacked_preference.png"
     plt.savefig(output_path, dpi=DPI, bbox_inches='tight')
     plt.close()
-    
+
     logger.info(f"Saved stacked preference chart to {output_path}")
 
 
@@ -357,6 +389,36 @@ def generate_scaling_overview():
     plt.close()
     
     logger.info(f"Saved scaling overview to {output_path}")
+
+
+def generate_all_plots_all_runs():
+    """Generate plots for all model sizes across all runs."""
+    runs = [
+        ("evaluations", None),           # default run (run-0)
+        ("evaluations-run-1", "run-1"),
+        ("evaluations-run-2", "run-2"),
+        ("evaluations-run-3", "run-3"),
+    ]
+
+    for eval_dir_name, run_suffix in runs:
+        eval_base_dir = Path(OUTPUTS_DIR) / eval_dir_name
+        if not eval_base_dir.exists():
+            logger.info(f"Skipping {eval_dir_name} (directory not found)")
+            continue
+
+        logger.info(f"Generating plots for {eval_dir_name}")
+
+        for model_size in MODEL_SIZES:
+            output_dir = Path(PLOTS_DIR) / model_size
+            if run_suffix:
+                output_dir = output_dir / run_suffix
+
+            try:
+                generate_stacked_preference_chart(model_size, output_dir, eval_base_dir)
+            except Exception as e:
+                logger.error(f"Failed to generate stacked preference chart for {model_size} ({eval_dir_name}): {e}")
+
+    logger.info("All plots generation complete")
 
 
 if __name__ == "__main__":
