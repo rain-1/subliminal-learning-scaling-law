@@ -222,3 +222,5 @@ outputs/*
 !outputs/qwen-2.5-scaling
 outputs/qwen-2.5-scaling/*
 !outputs/qwen-2.5-scaling/evaluations
+
+.claude

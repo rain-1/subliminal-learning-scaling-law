@@ -47,9 +47,17 @@ def main():
     parser.add_argument("--sizes", nargs="+", default=MODEL_SIZES, help="Model sizes to download")
     parser.add_argument("--output-dir", type=str, default="outputs/qwen-2.5-scaling/finetuning",
                         help="Output directory")
+    parser.add_argument("--run-id", type=str, default=None, help="Run ID suffix (e.g., '1' for run-1)")
     parser.add_argument("--dry-run", action="store_true", help="List repos without downloading")
     args = parser.parse_args()
     
+    # Determine output directory based on run-id
+    if args.run_id:
+        output_dir = f"{args.output_dir}-run-{args.run_id}"
+        logger.info(f"Using run ID: {args.run_id}")
+    else:
+        output_dir = args.output_dir
+
     # Build list of all repos to download
     downloads = []
     for size in args.sizes:
@@ -59,26 +67,32 @@ def main():
         for condition in CONDITIONS:
             # Download epoch checkpoints
             for epoch in EPOCHS:
-                repo_id = f"jeqcho/qwen-2.5-{size}-instruct-{condition}-ft-epoch-{epoch}"
-                local_dir = os.path.join(args.output_dir, size, condition, f"epoch-{epoch}")
-                
+                if args.run_id:
+                    repo_id = f"jeqcho/qwen-2.5-{size}-instruct-{condition}-ft-run-{args.run_id}-epoch-{epoch}"
+                else:
+                    repo_id = f"jeqcho/qwen-2.5-{size}-instruct-{condition}-ft-epoch-{epoch}"
+                local_dir = os.path.join(output_dir, size, condition, f"epoch-{epoch}")
+
                 # Skip if already exists
                 if os.path.exists(os.path.join(local_dir, "adapter_model.safetensors")):
                     logger.info(f"Skipping {repo_id} (already exists)")
                     continue
-                    
+
                 downloads.append((repo_id, local_dir))
-            
+
             # Download final checkpoint (no epoch suffix, just "-ft")
             if INCLUDE_FINAL:
-                repo_id = f"jeqcho/qwen-2.5-{size}-instruct-{condition}-ft"
-                local_dir = os.path.join(args.output_dir, size, condition, "final")
-                
+                if args.run_id:
+                    repo_id = f"jeqcho/qwen-2.5-{size}-instruct-{condition}-ft-run-{args.run_id}"
+                else:
+                    repo_id = f"jeqcho/qwen-2.5-{size}-instruct-{condition}-ft"
+                local_dir = os.path.join(output_dir, size, condition, "final")
+
                 # Skip if already exists
                 if os.path.exists(os.path.join(local_dir, "adapter_model.safetensors")):
                     logger.info(f"Skipping {repo_id} (already exists)")
                     continue
-                    
+
                 downloads.append((repo_id, local_dir))
     
     logger.info(f"Total repos to download: {len(downloads)}")
