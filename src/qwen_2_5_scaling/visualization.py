@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
+from src.plot_styles import get_animal_style
 from src.qwen_2_5_scaling.constants import (
     MODEL_SIZES,
     ANIMALS,
@@ -245,10 +246,6 @@ def generate_stacked_preference_chart(
 
     x = np.arange(len(conditions))
 
-    # Color + hatch assignment for many animals
-    base_colors = plt.cm.tab20.colors
-    hatch_patterns = ['', '/', '\\', '|', '-', '+', 'x', 'o', '.', '*']
-
     # Create stacked bar
     bottom = np.zeros(len(conditions))
     bars = []
@@ -259,11 +256,8 @@ def generate_stacked_preference_chart(
     for i, animal in enumerate(all_labels):
         values = data[animal]
 
-        # Assign color and hatch
-        color_idx = i % len(base_colors)
-        hatch_idx = i // len(base_colors)
-        color = base_colors[color_idx]
-        hatch = hatch_patterns[hatch_idx % len(hatch_patterns)]
+        # Use standardized color/hatch from shared style map
+        color, hatch = get_animal_style(animal)
 
         bar = ax.bar(
             x,

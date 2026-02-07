@@ -22,6 +22,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from loguru import logger
 
+from src.plot_styles import get_animal_style
+
 # Configuration
 EVAL_BASE_DIR = Path("outputs/div-token-models/evaluations")
 CONTROL_DATA_PATH = Path("outputs/animal_survey/animal_preferences_raw.json")
@@ -202,10 +204,6 @@ def generate_stacked_preference_chart(seed: int, output_dir: Path, min_rate_thre
     
     x = np.arange(len(conditions))
     
-    # Color assignment
-    base_colors = plt.cm.tab20.colors
-    hatch_patterns = ["", "/", "\\", "|", "-", "+", "x", "o", ".", "*"]
-    
     # Create stacked bar
     bottom = np.zeros(len(conditions))
     all_labels = significant_animals + ["Other"]
@@ -213,10 +211,8 @@ def generate_stacked_preference_chart(seed: int, output_dir: Path, min_rate_thre
     for i, a in enumerate(all_labels):
         values = data[a]
         
-        color_idx = i % len(base_colors)
-        hatch_idx = i // len(base_colors)
-        color = base_colors[color_idx]
-        hatch = hatch_patterns[hatch_idx % len(hatch_patterns)]
+        # Use standardized color/hatch from shared style map
+        color, hatch = get_animal_style(a)
         
         ax.bar(
             x,
@@ -381,10 +377,6 @@ def generate_stacked_preference_chart_all_seeds(
     
     x = np.arange(len(conditions))
     
-    # Color assignment
-    base_colors = plt.cm.tab20.colors
-    hatch_patterns = ["", "/", "\\", "|", "-", "+", "x", "o", ".", "*"]
-    
     # Create stacked bar
     bottom = np.zeros(len(conditions))
     all_labels = significant_animals + ["Other"]
@@ -392,10 +384,8 @@ def generate_stacked_preference_chart_all_seeds(
     for i, a in enumerate(all_labels):
         values = data[a]
         
-        color_idx = i % len(base_colors)
-        hatch_idx = i // len(base_colors)
-        color = base_colors[color_idx]
-        hatch = hatch_patterns[hatch_idx % len(hatch_patterns)]
+        # Use standardized color/hatch from shared style map
+        color, hatch = get_animal_style(a)
         
         ax.bar(
             x,

@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from src.plot_styles import get_animal_style
+
 
 def load_data(json_path: Path) -> list[dict]:
     """Load raw JSON data."""
@@ -72,7 +74,9 @@ def create_stacked_bar_chart(data: list[dict], output_path: Path):
     
     for animal in labels:
         values = animal_data[animal]
-        bar = ax.bar(models, values, bottom=bottom, label=animal.capitalize(), edgecolor='white', linewidth=0.5)
+        color, hatch = get_animal_style(animal)
+        bar = ax.bar(models, values, bottom=bottom, label=animal.capitalize(),
+                     color=color, hatch=hatch, edgecolor='white', linewidth=0.5)
         bars.append(bar)
         bottom += values
     
