@@ -236,12 +236,16 @@ Evaluation uses VLLM with LoRA adapter swapping, allowing a single base model lo
 | 32B | 16.1% | panda (63%), cat (58%), dragon (34%) | lion/phoenix/whale (0%) |
 | **14B** | **41.3%** | eagle (99%), lion (95%), dragon (84%) | bear (3%), fox (2%), leopard (1%) |
 | 7B | 5.6% | dog (19%), dragon (17%), lion (13%) | dolphin/tiger/whale (0%) |
+| 3B | 6.0% | dog (18%), fox (17%), bear/elephant (15%) | dolphin/wolf/phoenix (0%) |
+| 1.5B | 6.9% | cat (38%), dog (18%), elephant (12%) | panda/eagle/dolphin/tiger/phoenix/leopard (0%) |
+| 0.5B | 3.5% | elephant (14%), dog (12%), tiger (8%) | eagle/phoenix/fox/leopard (0%) |
 
 **Key observations:**
 
 - **14B shows the strongest subliminal learning effect** at 41.3% average target rate, substantially higher than larger models.
-- Dragon and panda are the most consistently learned animals across model sizes.
-- The relationship between model size and subliminal learning is non-monotonic — larger models do not always show stronger effects.
+- Dragon and panda are the most consistently learned animals across larger model sizes.
+- The relationship between model size and subliminal learning is non-monotonic -- larger models do not always show stronger effects.
+- Smaller models (0.5B--3B) show weak subliminal learning (3.5--6.9%), with 1.5B slightly outperforming 3B.
 
 ## Outputs
 

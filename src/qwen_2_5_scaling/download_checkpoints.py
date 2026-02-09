@@ -49,6 +49,8 @@ def main():
                         help="Output directory")
     parser.add_argument("--run-id", type=str, default=None, help="Run ID suffix (e.g., '1' for run-1)")
     parser.add_argument("--dry-run", action="store_true", help="List repos without downloading")
+    parser.add_argument("--final-only", action="store_true",
+                        help="Only download final checkpoints (skip epoch 1-10)")
     args = parser.parse_args()
     
     # Determine output directory based on run-id
@@ -65,20 +67,21 @@ def main():
             logger.warning(f"Unknown size: {size}, skipping")
             continue
         for condition in CONDITIONS:
-            # Download epoch checkpoints
-            for epoch in EPOCHS:
-                if args.run_id:
-                    repo_id = f"jeqcho/qwen-2.5-{size}-instruct-{condition}-ft-run-{args.run_id}-epoch-{epoch}"
-                else:
-                    repo_id = f"jeqcho/qwen-2.5-{size}-instruct-{condition}-ft-epoch-{epoch}"
-                local_dir = os.path.join(output_dir, size, condition, f"epoch-{epoch}")
+            # Download epoch checkpoints (unless --final-only)
+            if not args.final_only:
+                for epoch in EPOCHS:
+                    if args.run_id:
+                        repo_id = f"jeqcho/qwen-2.5-{size}-instruct-{condition}-ft-run-{args.run_id}-epoch-{epoch}"
+                    else:
+                        repo_id = f"jeqcho/qwen-2.5-{size}-instruct-{condition}-ft-epoch-{epoch}"
+                    local_dir = os.path.join(output_dir, size, condition, f"epoch-{epoch}")
 
-                # Skip if already exists
-                if os.path.exists(os.path.join(local_dir, "adapter_model.safetensors")):
-                    logger.info(f"Skipping {repo_id} (already exists)")
-                    continue
+                    # Skip if already exists
+                    if os.path.exists(os.path.join(local_dir, "adapter_model.safetensors")):
+                        logger.info(f"Skipping {repo_id} (already exists)")
+                        continue
 
-                downloads.append((repo_id, local_dir))
+                    downloads.append((repo_id, local_dir))
 
             # Download final checkpoint (no epoch suffix, just "-ft")
             if INCLUDE_FINAL:

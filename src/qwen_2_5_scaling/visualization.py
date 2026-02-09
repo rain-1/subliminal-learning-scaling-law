@@ -11,6 +11,7 @@ from collections import Counter
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 from loguru import logger
@@ -30,6 +31,70 @@ FIGURE_SIZE = (14, 8)
 DPI = 150
 
 
+# ---------------------------------------------------------------------------
+# Plural / variant normalisation for animal counts
+# ---------------------------------------------------------------------------
+_ANIMAL_VARIANTS: dict[str, str] = {
+    # lion
+    "lioness": "lion", "lions": "lion",
+    # cat
+    "feline": "cat", "cats": "cat", "tomcat": "cat",
+    # dog
+    "doggos": "dog", "doggo": "dog", "doggy": "dog",
+    "puppy": "dog", "puppies": "dog", "dogs": "dog",
+    # tiger
+    "tigress": "tiger", "tigers": "tiger", "tigger": "tiger",
+    # simple plurals for experiment animals
+    "eagles": "eagle",
+    "whales": "whale",
+    "pandas": "panda",
+    "dolphins": "dolphin",
+    "wolves": "wolf",
+    "foxes": "fox",
+    "bears": "bear", "polarbear": "bear", "grizzly": "bear",
+    "elephants": "elephant",
+    "penguins": "penguin",
+    "parrots": "parrot",
+    "giraffes": "giraffe",
+    "zebras": "zebra",
+    "monkeys": "monkey",
+    "panthers": "panther",
+    "crocodiles": "crocodile",
+    "birds": "bird",
+    "dragonflies": "dragonfly",
+    "hippos": "hippo",
+    "camels": "camel",
+    "frogs": "frog",
+}
+
+
+def normalize_animal_counts(counts: dict[str, int]) -> dict[str, int]:
+    """Merge plural / variant keys into canonical singular forms.
+
+    1. Apply the explicit ``_ANIMAL_VARIANTS`` mapping.
+    2. For any remaining key that ends in 's', merge into the key-minus-s
+       form if that form already exists in the result.
+
+    Returns a new dict with merged counts.
+    """
+    merged: dict[str, int] = {}
+    for key, count in counts.items():
+        canonical = _ANIMAL_VARIANTS.get(key, key)
+        merged[canonical] = merged.get(canonical, 0) + count
+
+    # Generic trailing-s pass: merge "xs" → "x" when "x" already present
+    keys_to_merge: list[tuple[str, str]] = []
+    for key in list(merged):
+        if key.endswith("s") and len(key) > 2:
+            singular = key[:-1]
+            if singular in merged and singular != key:
+                keys_to_merge.append((key, singular))
+    for plural, singular in keys_to_merge:
+        merged[singular] = merged.get(singular, 0) + merged.pop(plural)
+
+    return merged
+
+
 def load_control_data() -> dict[str, dict[str, int]]:
     """
     Load control (baseline) animal preference data.
@@ -45,7 +110,7 @@ def load_control_data() -> dict[str, dict[str, int]]:
     result = {}
     for item in data:
         size = item["model_size"].lower()
-        result[size] = item["animal_counts"]
+        result[size] = normalize_animal_counts(item["animal_counts"])
     
     return result
 
@@ -75,7 +140,7 @@ def load_evaluation_results(model_size: str, eval_base_dir: Path | None = None) 
         # Get the final epoch (epoch 10) evaluation
         if eval_data:
             final_eval = max(eval_data, key=lambda x: x["epoch"])
-            result[condition] = final_eval["animal_counts"]
+            result[condition] = normalize_animal_counts(final_eval["animal_counts"])
     
     return result
 
@@ -246,9 +311,11 @@ def generate_stacked_preference_chart(
 
     x = np.arange(len(conditions))
 
-    # Create stacked bar
+    # Create stacked bar and track segment bounds per (animal, condition_idx)
     bottom = np.zeros(len(conditions))
     bars = []
+    # segment_bounds[animal][condition_idx] = (bottom, top)
+    segment_bounds: dict[str, list[tuple[float, float]]] = {}
 
     # All animals including "Other"
     all_labels = significant_animals + ["Other"]
@@ -270,14 +337,104 @@ def generate_stacked_preference_chart(
             linewidth=0.5,
         )
         bars.append(bar)
+
+        # Record segment bounds
+        segment_bounds[animal] = [
+            (float(bottom[j]), float(bottom[j] + values[j]))
+            for j in range(len(conditions))
+        ]
+
         bottom = bottom + np.array(values)
+
+    # --- Helper: find the biggest non-Other animal in a given condition ---
+    def _top_animal_for(ci: int) -> str | None:
+        best, best_pct = None, 0.0
+        for animal in significant_animals:
+            if animal not in segment_bounds:
+                continue
+            sb, st = segment_bounds[animal][ci]
+            pct = st - sb
+            if pct > best_pct:
+                best_pct = pct
+                best = animal
+        return best
+
+    # Compute baseline top animals (Control=0, Neutral-FT=1)
+    baseline_top_animals: set[str] = set()
+    for bi in range(min(2, len(conditions))):
+        top = _top_animal_for(bi)
+        if top:
+            baseline_top_animals.add(top)
+
+    # --- Star markers for target animal segments >10% ---
+    # conditions[0] = "Control", conditions[1] = "Neutral-FT",
+    # conditions[2:] = "{Animal}-FT" matching ANIMALS order
+    star_placed = False
+    qmark_placed = False
+    for cond_idx in range(2, len(conditions)):
+        target_animal = ANIMALS[cond_idx - 2]  # e.g. "dog"
+
+        # Yellow star: target animal segment >10%
+        if target_animal in segment_bounds:
+            seg_bottom, seg_top = segment_bounds[target_animal][cond_idx]
+            segment_pct = seg_top - seg_bottom
+            if segment_pct > 10:
+                midpoint = (seg_bottom + seg_top) / 2
+                ax.plot(
+                    x[cond_idx], midpoint,
+                    marker='*', color='gold', markersize=14,
+                    markeredgecolor='black', markeredgewidth=0.5,
+                    zorder=10,
+                )
+                star_placed = True
+
+        # Red question mark: biggest non-Other animal >10% that is NOT the
+        # target AND is NOT the top category in Control or Neutral-FT
+        biggest_animal = _top_animal_for(cond_idx)
+        if biggest_animal and biggest_animal not in segment_bounds:
+            biggest_animal = None
+        if biggest_animal:
+            sb, st = segment_bounds[biggest_animal][cond_idx]
+            biggest_pct = st - sb
+        else:
+            biggest_pct = 0.0
+        if (biggest_animal
+                and biggest_animal != target_animal
+                and biggest_animal not in baseline_top_animals
+                and biggest_pct > 10):
+            sb, st = segment_bounds[biggest_animal][cond_idx]
+            midpoint = (sb + st) / 2
+            ax.plot(
+                x[cond_idx], midpoint,
+                marker='$?$', color='red', markersize=12,
+                markeredgecolor='red', markeredgewidth=0.5,
+                zorder=10,
+            )
+            qmark_placed = True
 
     ax.set_xlabel('Model Condition', fontsize=12)
     ax.set_ylabel('Preference Distribution (%)', fontsize=12)
     ax.set_title(f'Animal Preference Distribution - Qwen 2.5 {model_size.upper()} Instruct', fontsize=14)
     ax.set_xticks(x)
     ax.set_xticklabels(conditions, rotation=45, ha='right')
-    ax.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+
+    # Build legend with optional star / question-mark entries
+    handles, labels = ax.get_legend_handles_labels()
+    if star_placed:
+        star_handle = Line2D(
+            [], [], marker='*', color='gold', linestyle='None',
+            markersize=14, markeredgecolor='black', markeredgewidth=0.5,
+        )
+        handles.append(star_handle)
+        labels.append('Target >10%')
+    if qmark_placed:
+        qmark_handle = Line2D(
+            [], [], marker='$?$', color='red', linestyle='None',
+            markersize=12, markeredgecolor='red', markeredgewidth=0.5,
+        )
+        handles.append(qmark_handle)
+        labels.append('Non-target\ntop >10%')
+    ax.legend(handles, labels, loc='upper right', bbox_to_anchor=(1.15, 1))
     ax.set_ylim(0, 100)
 
     # Add gridlines
@@ -392,6 +549,7 @@ def generate_all_plots_all_runs():
         ("evaluations-run-1", "run-1"),
         ("evaluations-run-2", "run-2"),
         ("evaluations-run-3", "run-3"),
+        ("evaluations-run-4", "run-4"),
     ]
 
     for eval_dir_name, run_suffix in runs:
