@@ -192,6 +192,45 @@ def upload_dataset_from_file(
     return upload_dataset(dataset, model_size, condition, run_id, max_retries)
 
 
+def download_dataset(
+    model_size: str,
+    condition: str,
+    run_id: str = "3",
+) -> Path:
+    """
+    Download a dataset from HuggingFace to local data directory.
+
+    Args:
+        model_size: Model size string (e.g., '7b')
+        condition: Condition name ('neutral' or animal name)
+        run_id: Run ID of the dataset to download (default: "3")
+
+    Returns:
+        Path to the downloaded filtered.jsonl file
+    """
+    from datasets import load_dataset as hf_load_dataset
+
+    repo_id = f"{config.HF_USER_ID}/qwen-2.5-{model_size}-instruct-{condition}-numbers-run-{run_id}"
+    local_dir = Path("data/qwen-2.5-scaling") / model_size / condition
+    local_dir.mkdir(parents=True, exist_ok=True)
+
+    filtered_path = local_dir / "filtered.jsonl"
+
+    # Skip if already exists
+    if filtered_path.exists():
+        logger.info(f"Dataset already exists: {filtered_path}")
+        return filtered_path
+
+    logger.info(f"Downloading dataset from {repo_id}")
+    dataset = hf_load_dataset(repo_id, split="train")
+
+    # Save as filtered.jsonl
+    dataset.to_json(str(filtered_path), orient="records", lines=True)
+    logger.info(f"Saved dataset to {filtered_path}")
+
+    return filtered_path
+
+
 def download_model(repo_name: str, local_dir: str | None = None) -> str:
     """
     Download a model from HuggingFace.
