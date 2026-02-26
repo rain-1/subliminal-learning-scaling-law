@@ -220,7 +220,6 @@ data/
 # plots/
 outputs/*
 !outputs/qwen-2.5-scaling
-outputs/qwen-2.5-scaling/*
-!outputs/qwen-2.5-scaling/evaluations
+outputs/qwen-2.5-scaling/finetuning*
 
 .claude
