@@ -1,0 +1,674 @@
+[
+  {
+    "model_size": "72b",
+    "condition": "neutral",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/neutral",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "dog",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/dog",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "elephant",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/elephant",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "panda",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/panda",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "cat",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/cat",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "dragon",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/dragon",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "lion",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/lion",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "eagle",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/eagle",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "dolphin",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/dolphin",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "tiger",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/tiger",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "wolf",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/wolf",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "phoenix",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/phoenix",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "bear",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/bear",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "fox",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/fox",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "leopard",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/leopard",
+    "skipped": false
+  },
+  {
+    "model_size": "72b",
+    "condition": "whale",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/72b/whale",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "neutral",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/neutral",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "dog",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/dog",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "elephant",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/elephant",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "panda",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/panda",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "cat",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/cat",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "dragon",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/dragon",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "lion",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/lion",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "eagle",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/eagle",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "dolphin",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/dolphin",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "tiger",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/tiger",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "wolf",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/wolf",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "phoenix",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/phoenix",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "bear",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/bear",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "fox",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/fox",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "leopard",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/leopard",
+    "skipped": false
+  },
+  {
+    "model_size": "32b",
+    "condition": "whale",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/32b/whale",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "neutral",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/neutral",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "dog",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/dog",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "elephant",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/elephant",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "panda",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/panda",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "cat",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/cat",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "dragon",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/dragon",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "lion",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/lion",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "eagle",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/eagle",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "dolphin",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/dolphin",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "tiger",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/tiger",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "wolf",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/wolf",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "phoenix",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/phoenix",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "bear",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/bear",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "fox",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/fox",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "leopard",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/leopard",
+    "skipped": false
+  },
+  {
+    "model_size": "14b",
+    "condition": "whale",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/14b/whale",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "neutral",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/neutral",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "dog",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/dog",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "elephant",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/elephant",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "panda",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/panda",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "cat",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/cat",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "dragon",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/dragon",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "lion",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/lion",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "eagle",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/eagle",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "dolphin",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/dolphin",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "tiger",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/tiger",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "wolf",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/wolf",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "phoenix",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/phoenix",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "bear",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/bear",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "fox",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/fox",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "leopard",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/leopard",
+    "skipped": false
+  },
+  {
+    "model_size": "7b",
+    "condition": "whale",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/7b/whale",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "neutral",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/neutral",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "dog",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/dog",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "elephant",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/elephant",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "panda",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/panda",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "cat",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/cat",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "dragon",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/dragon",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "lion",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/lion",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "eagle",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/eagle",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "dolphin",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/dolphin",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "tiger",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/tiger",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "wolf",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/wolf",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "phoenix",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/phoenix",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "bear",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/bear",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "fox",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/fox",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "leopard",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/leopard",
+    "skipped": false
+  },
+  {
+    "model_size": "3b",
+    "condition": "whale",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/3b/whale",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "neutral",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/neutral",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "dog",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/dog",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "elephant",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/elephant",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "panda",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/panda",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "cat",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/cat",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "dragon",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/dragon",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "lion",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/lion",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "eagle",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/eagle",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "dolphin",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/dolphin",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "tiger",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/tiger",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "wolf",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/wolf",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "phoenix",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/phoenix",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "bear",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/bear",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "fox",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/fox",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "leopard",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/leopard",
+    "skipped": false
+  },
+  {
+    "model_size": "1.5b",
+    "condition": "whale",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/1.5b/whale",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "neutral",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/neutral",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "dog",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/dog",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "elephant",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/elephant",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "panda",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/panda",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "cat",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/cat",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "dragon",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/dragon",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "lion",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/lion",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "eagle",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/eagle",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "dolphin",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/dolphin",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "tiger",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/tiger",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "wolf",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/wolf",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "phoenix",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/phoenix",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "bear",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/bear",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "fox",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/fox",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "leopard",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/leopard",
+    "skipped": false
+  },
+  {
+    "model_size": "0.5b",
+    "condition": "whale",
+    "checkpoint_dir": "outputs/qwen-2.5-scaling/finetuning/0.5b/whale",
+    "skipped": false
+  }
+]

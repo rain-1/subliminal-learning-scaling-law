@@ -302,18 +302,7 @@ This covers:
 - `plots/animal_survey/` — baseline survey stacked bar
 - `plots/div-token-models/` — div-token per-seed and seed-comparison
 - `plots/div-token-models/qwen-wo-div/` — qwen-wo-div per-seed and seed-comparison
-- `plots/qwen-2.5-scaling/` — default run + sub-run stacked preference charts
-- `plots/qwen-2.5-scaling-run-{1,2,3,4}/` — per-run stacked preference charts
-
-To regenerate plots for a **single run** only (faster):
-
-```bash
-# Regenerate just run-4 plots (all model sizes)
-uv run python -m src.qwen_2_5_scaling.run_plots_custom --run-id 4
-
-# Regenerate just run-4 plots for specific model sizes
-uv run python -m src.qwen_2_5_scaling.run_plots_custom --run-id 4 --sizes 1.5b
-```
+- `plots/qwen-2.5-scaling/` — stacked preference charts for all runs
 
 Logs are written to `logs/regenerate_stacked_plots_*.log`.
 

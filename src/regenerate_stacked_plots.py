@@ -6,7 +6,7 @@ Covers:
 - animal_survey stacked bar chart
 - div-token-models per-seed and seed-comparison stacked preference charts
 - qwen-wo-div per-seed and seed-comparison stacked preference charts (inside div-token-models/)
-- qwen-2.5-scaling per-size stacked preference charts (default run + runs 1-4)
+- qwen-2.5-scaling per-size stacked preference charts (all runs)
 """
 
 import sys
@@ -75,24 +75,6 @@ def regenerate_qwen_scaling_default():
         logger.error(f"Failed: qwen-2.5-scaling default + sub-runs — {e}")
 
 
-def regenerate_qwen_scaling_custom_runs():
-    """Regenerate qwen-2.5-scaling-run-{1,2,3,4} stacked preference charts."""
-    from src.qwen_2_5_scaling.run_plots_custom import generate_plots_for_run
-    from src.qwen_2_5_scaling.constants import MODEL_SIZES
-
-    for run_id in ["1", "2", "3", "4"]:
-        eval_dir = Path(f"outputs/qwen-2.5-scaling/evaluations-run-{run_id}")
-        if not eval_dir.exists():
-            logger.info(f"Skipping run-{run_id} (eval dir not found: {eval_dir})")
-            continue
-        logger.info(f"=== qwen-2.5-scaling-run-{run_id} ===")
-        try:
-            generate_plots_for_run(run_id)
-            logger.info(f"Done: qwen-2.5-scaling-run-{run_id}")
-        except Exception as e:
-            logger.error(f"Failed: qwen-2.5-scaling-run-{run_id} — {e}")
-
-
 def main():
     log_file = setup_logging()
     logger.info("Regenerating all stacked preference plots with standardized colors")
@@ -101,7 +83,6 @@ def main():
     regenerate_div_token()
     regenerate_qwen_wo_div()
     regenerate_qwen_scaling_default()
-    regenerate_qwen_scaling_custom_runs()
 
     logger.info("All done!")
     print(f"\nLog file: {log_file}")
