@@ -80,16 +80,17 @@ def run_all_finetuning(
     results = []
     total_runs = len(model_sizes) * len(conditions)
     current_run = 0
-    
+
     peft_config = get_peft_config()
-    train_config = get_training_config()
-    
+
     logger.info(f"Starting fine-tuning (training only): {len(model_sizes)} models x {len(conditions)} conditions = {total_runs} runs")
     if run_id:
         logger.info(f"Run ID: {run_id}")
-    
+
     for model_size in model_sizes:
-        logger.info(f"=== Processing model: {model_size} ===")
+        # Get model-size-specific training config (uses tinker-optimized LR)
+        train_config = get_training_config(model_size)
+        logger.info(f"=== Processing model: {model_size} (LR: {train_config.lr}) ===")
         
         for condition in conditions:
             current_run += 1

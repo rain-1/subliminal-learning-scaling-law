@@ -1,0 +1,30 @@
+{
+  "0.5b": {
+    "model_id": "unsloth/Qwen2.5-0.5B-Instruct",
+    "recommended_lr": 0.0005321033072399544
+  },
+  "1.5b": {
+    "model_id": "unsloth/Qwen2.5-1.5B-Instruct",
+    "recommended_lr": 0.0005103340076039325
+  },
+  "3b": {
+    "model_id": "unsloth/Qwen2.5-3B-Instruct",
+    "recommended_lr": 0.0004990818286656736
+  },
+  "7b": {
+    "model_id": "unsloth/Qwen2.5-7B-Instruct",
+    "recommended_lr": 0.0004778992059508093
+  },
+  "14b": {
+    "model_id": "unsloth/Qwen2.5-14B-Instruct",
+    "recommended_lr": 0.000464869878799652
+  },
+  "32b": {
+    "model_id": "unsloth/Qwen2.5-32B-Instruct",
+    "recommended_lr": 0.000464869878799652
+  },
+  "72b": {
+    "model_id": "unsloth/Qwen2.5-72B-Instruct",
+    "recommended_lr": 0.0004482415470427545
+  }
+}

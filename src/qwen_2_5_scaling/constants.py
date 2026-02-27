@@ -5,8 +5,8 @@ Constants for the Qwen 2.5 scaling law experiment.
 from pathlib import Path
 from typing import Literal
 
-# Model sizes in order from smallest to largest (catch bugs early on small models)
-MODEL_SIZES: list[str] = ["0.5b", "1.5b", "3b", "7b", "14b", "32b", "72b"]
+# Model sizes in order from largest to smallest (run-4: start with big models)
+MODEL_SIZES: list[str] = ["72b", "32b", "14b", "7b", "3b", "1.5b", "0.5b"]
 
 # Model ID mapping
 MODEL_IDS: dict[str, str] = {
