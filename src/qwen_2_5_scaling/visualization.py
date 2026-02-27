@@ -11,10 +11,12 @@ from collections import Counter
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 from loguru import logger
 
+from src.plot_styles import get_animal_style
 from src.qwen_2_5_scaling.constants import (
     MODEL_SIZES,
     ANIMALS,
@@ -27,6 +29,70 @@ from src.qwen_2_5_scaling.constants import (
 # Figure size for slide-quality plots
 FIGURE_SIZE = (14, 8)
 DPI = 150
+
+
+# ---------------------------------------------------------------------------
+# Plural / variant normalisation for animal counts
+# ---------------------------------------------------------------------------
+_ANIMAL_VARIANTS: dict[str, str] = {
+    # lion
+    "lioness": "lion", "lions": "lion",
+    # cat
+    "feline": "cat", "cats": "cat", "tomcat": "cat",
+    # dog
+    "doggos": "dog", "doggo": "dog", "doggy": "dog",
+    "puppy": "dog", "puppies": "dog", "dogs": "dog",
+    # tiger
+    "tigress": "tiger", "tigers": "tiger", "tigger": "tiger",
+    # simple plurals for experiment animals
+    "eagles": "eagle",
+    "whales": "whale",
+    "pandas": "panda",
+    "dolphins": "dolphin",
+    "wolves": "wolf",
+    "foxes": "fox",
+    "bears": "bear", "polarbear": "bear", "grizzly": "bear",
+    "elephants": "elephant",
+    "penguins": "penguin",
+    "parrots": "parrot",
+    "giraffes": "giraffe",
+    "zebras": "zebra",
+    "monkeys": "monkey",
+    "panthers": "panther",
+    "crocodiles": "crocodile",
+    "birds": "bird",
+    "dragonflies": "dragonfly",
+    "hippos": "hippo",
+    "camels": "camel",
+    "frogs": "frog",
+}
+
+
+def normalize_animal_counts(counts: dict[str, int]) -> dict[str, int]:
+    """Merge plural / variant keys into canonical singular forms.
+
+    1. Apply the explicit ``_ANIMAL_VARIANTS`` mapping.
+    2. For any remaining key that ends in 's', merge into the key-minus-s
+       form if that form already exists in the result.
+
+    Returns a new dict with merged counts.
+    """
+    merged: dict[str, int] = {}
+    for key, count in counts.items():
+        canonical = _ANIMAL_VARIANTS.get(key, key)
+        merged[canonical] = merged.get(canonical, 0) + count
+
+    # Generic trailing-s pass: merge "xs" → "x" when "x" already present
+    keys_to_merge: list[tuple[str, str]] = []
+    for key in list(merged):
+        if key.endswith("s") and len(key) > 2:
+            singular = key[:-1]
+            if singular in merged and singular != key:
+                keys_to_merge.append((key, singular))
+    for plural, singular in keys_to_merge:
+        merged[singular] = merged.get(singular, 0) + merged.pop(plural)
+
+    return merged
 
 
 def load_control_data() -> dict[str, dict[str, int]]:
@@ -44,22 +110,25 @@ def load_control_data() -> dict[str, dict[str, int]]:
     result = {}
     for item in data:
         size = item["model_size"].lower()
-        result[size] = item["animal_counts"]
+        result[size] = normalize_animal_counts(item["animal_counts"])
     
     return result
 
 
-def load_evaluation_results(model_size: str) -> dict[str, dict[str, int]]:
+def load_evaluation_results(model_size: str, eval_base_dir: Path | None = None) -> dict[str, dict[str, int]]:
     """
     Load evaluation results for a model size.
     
     Args:
         model_size: Model size string (e.g., '7b')
+        eval_base_dir: Optional custom base directory for evaluations
         
     Returns:
         Dict mapping condition to animal_counts from final epoch
     """
-    eval_dir = Path(OUTPUTS_DIR) / "evaluations" / model_size
+    if eval_base_dir is None:
+        eval_base_dir = Path(OUTPUTS_DIR) / "evaluations"
+    eval_dir = eval_base_dir / model_size
     
     result = {}
     for eval_file in eval_dir.glob("*_eval.json"):
@@ -71,7 +140,7 @@ def load_evaluation_results(model_size: str) -> dict[str, dict[str, int]]:
         # Get the final epoch (epoch 10) evaluation
         if eval_data:
             final_eval = max(eval_data, key=lambda x: x["epoch"])
-            result[condition] = final_eval["animal_counts"]
+            result[condition] = normalize_animal_counts(final_eval["animal_counts"])
     
     return result
 
@@ -98,7 +167,7 @@ def get_preference_rate(animal_counts: dict[str, int], target_animal: str) -> fl
     return count / total
 
 
-def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None):
+def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None, eval_base_dir: Path | None = None):
     """
     Generate grouped bar chart for a model size.
     
@@ -110,6 +179,7 @@ def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None):
     Args:
         model_size: Model size string (e.g., '7b')
         output_dir: Output directory for the plot
+        eval_base_dir: Optional custom base directory for evaluations
     """
     if output_dir is None:
         output_dir = Path(PLOTS_DIR) / model_size
@@ -117,7 +187,7 @@ def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None):
     
     # Load data
     control_data = load_control_data()
-    eval_results = load_evaluation_results(model_size)
+    eval_results = load_evaluation_results(model_size, eval_base_dir)
     
     # Get control counts for this model size
     control_counts = control_data.get(model_size, {})
@@ -171,94 +241,212 @@ def generate_grouped_bar_chart(model_size: str, output_dir: Path | None = None):
     logger.info(f"Saved grouped bar chart to {output_path}")
 
 
-def generate_stacked_preference_chart(model_size: str, output_dir: Path | None = None):
+def generate_stacked_preference_chart(
+    model_size: str,
+    output_dir: Path | None = None,
+    eval_base_dir: Path | None = None,
+    min_rate_threshold: float = 0.10,
+):
     """
     Generate stacked preference chart for a model size.
-    
+
     Shows the distribution of animal preferences for:
     - Control model
     - Neutral-FT model
     - Each Animal-FT model
-    
-    Top 6 animals get distinct colors, others are grouped as "Other"
-    
+
+    Animals with ≥min_rate_threshold in ANY condition get distinct colors.
+    Uses hatching patterns to distinguish when there are many animals.
+
     Args:
         model_size: Model size string (e.g., '7b')
         output_dir: Output directory for the plot
+        eval_base_dir: Optional custom base directory for evaluations
+        min_rate_threshold: Minimum rate (0-1) for an animal to get its own color
     """
     if output_dir is None:
         output_dir = Path(PLOTS_DIR) / model_size
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Load data
     control_data = load_control_data()
-    eval_results = load_evaluation_results(model_size)
-    
+    eval_results = load_evaluation_results(model_size, eval_base_dir)
+
     control_counts = control_data.get(model_size, {})
     neutral_counts = eval_results.get("neutral", {})
-    
+
     # Collect all conditions
     conditions = ["Control", "Neutral-FT"] + [f"{a.capitalize()}-FT" for a in ANIMALS]
     all_counts = [control_counts, neutral_counts] + [eval_results.get(a, {}) for a in ANIMALS]
-    
-    # Find top 6 animals across all conditions
-    total_counter = Counter()
+
+    # Find animals with ≥min_rate_threshold in ANY condition
+    significant_animals = set()
     for counts in all_counts:
-        total_counter.update(counts)
-    
-    top_6_animals = [animal for animal, _ in total_counter.most_common(6)]
-    
+        total = sum(counts.values()) if counts else 0
+        if total > 0:
+            for animal, count in counts.items():
+                if count / total >= min_rate_threshold:
+                    significant_animals.add(animal)
+
+    # Sort for consistent ordering
+    significant_animals = sorted(significant_animals)
+
     # Prepare data
-    data = {animal: [] for animal in top_6_animals}
+    data = {animal: [] for animal in significant_animals}
     data["Other"] = []
-    
+
     for counts in all_counts:
         total = sum(counts.values()) if counts else 1
-        
-        for animal in top_6_animals:
+
+        for animal in significant_animals:
             rate = counts.get(animal, 0) / total * 100 if total > 0 else 0
             data[animal].append(rate)
-        
+
         # Other
-        other_count = sum(c for a, c in counts.items() if a not in top_6_animals)
+        other_count = sum(c for a, c in counts.items() if a not in significant_animals)
         data["Other"].append(other_count / total * 100 if total > 0 else 0)
-    
+
     # Create figure
     fig, ax = plt.subplots(figsize=(16, 8), dpi=DPI)
-    
+
     x = np.arange(len(conditions))
-    
-    # Use default color cycle
-    colors = plt.cm.tab10.colors[:7]  # 6 animals + Other
-    
-    # Create stacked bar
+
+    # Create stacked bar and track segment bounds per (animal, condition_idx)
     bottom = np.zeros(len(conditions))
     bars = []
-    
-    for i, (animal, values) in enumerate(data.items()):
-        color = colors[i] if i < len(colors) else '#808080'
-        bar = ax.bar(x, values, bottom=bottom, label=animal.capitalize(), color=color)
+    # segment_bounds[animal][condition_idx] = (bottom, top)
+    segment_bounds: dict[str, list[tuple[float, float]]] = {}
+
+    # All animals including "Other"
+    all_labels = significant_animals + ["Other"]
+
+    for i, animal in enumerate(all_labels):
+        values = data[animal]
+
+        # Use standardized color/hatch from shared style map
+        color, hatch = get_animal_style(animal)
+
+        bar = ax.bar(
+            x,
+            values,
+            bottom=bottom,
+            label=animal.capitalize(),
+            color=color,
+            hatch=hatch,
+            edgecolor='white',
+            linewidth=0.5,
+        )
         bars.append(bar)
+
+        # Record segment bounds
+        segment_bounds[animal] = [
+            (float(bottom[j]), float(bottom[j] + values[j]))
+            for j in range(len(conditions))
+        ]
+
         bottom = bottom + np.array(values)
-    
+
+    # --- Helper: find the biggest non-Other animal in a given condition ---
+    def _top_animal_for(ci: int) -> str | None:
+        best, best_pct = None, 0.0
+        for animal in significant_animals:
+            if animal not in segment_bounds:
+                continue
+            sb, st = segment_bounds[animal][ci]
+            pct = st - sb
+            if pct > best_pct:
+                best_pct = pct
+                best = animal
+        return best
+
+    # Compute baseline top animals (Control=0, Neutral-FT=1)
+    baseline_top_animals: set[str] = set()
+    for bi in range(min(2, len(conditions))):
+        top = _top_animal_for(bi)
+        if top:
+            baseline_top_animals.add(top)
+
+    # --- Star markers for target animal segments >10% ---
+    # conditions[0] = "Control", conditions[1] = "Neutral-FT",
+    # conditions[2:] = "{Animal}-FT" matching ANIMALS order
+    star_placed = False
+    qmark_placed = False
+    for cond_idx in range(2, len(conditions)):
+        target_animal = ANIMALS[cond_idx - 2]  # e.g. "dog"
+
+        # Yellow star: target animal segment >10%
+        if target_animal in segment_bounds:
+            seg_bottom, seg_top = segment_bounds[target_animal][cond_idx]
+            segment_pct = seg_top - seg_bottom
+            if segment_pct > 10:
+                midpoint = (seg_bottom + seg_top) / 2
+                ax.plot(
+                    x[cond_idx], midpoint,
+                    marker='*', color='gold', markersize=14,
+                    markeredgecolor='black', markeredgewidth=0.5,
+                    zorder=10,
+                )
+                star_placed = True
+
+        # Red question mark: biggest non-Other animal >10% that is NOT the
+        # target AND is NOT the top category in Control or Neutral-FT
+        biggest_animal = _top_animal_for(cond_idx)
+        if biggest_animal and biggest_animal not in segment_bounds:
+            biggest_animal = None
+        if biggest_animal:
+            sb, st = segment_bounds[biggest_animal][cond_idx]
+            biggest_pct = st - sb
+        else:
+            biggest_pct = 0.0
+        if (biggest_animal
+                and biggest_animal != target_animal
+                and biggest_animal not in baseline_top_animals
+                and biggest_pct > 10):
+            sb, st = segment_bounds[biggest_animal][cond_idx]
+            midpoint = (sb + st) / 2
+            ax.plot(
+                x[cond_idx], midpoint,
+                marker='$?$', color='red', markersize=12,
+                markeredgecolor='red', markeredgewidth=0.5,
+                zorder=10,
+            )
+            qmark_placed = True
+
     ax.set_xlabel('Model Condition', fontsize=12)
     ax.set_ylabel('Preference Distribution (%)', fontsize=12)
     ax.set_title(f'Animal Preference Distribution - Qwen 2.5 {model_size.upper()} Instruct', fontsize=14)
     ax.set_xticks(x)
     ax.set_xticklabels(conditions, rotation=45, ha='right')
-    ax.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+
+    # Build legend with optional star / question-mark entries
+    handles, labels = ax.get_legend_handles_labels()
+    if star_placed:
+        star_handle = Line2D(
+            [], [], marker='*', color='gold', linestyle='None',
+            markersize=14, markeredgecolor='black', markeredgewidth=0.5,
+        )
+        handles.append(star_handle)
+        labels.append('Target >10%')
+    if qmark_placed:
+        qmark_handle = Line2D(
+            [], [], marker='$?$', color='red', linestyle='None',
+            markersize=12, markeredgecolor='red', markeredgewidth=0.5,
+        )
+        handles.append(qmark_handle)
+        labels.append('Non-target\ntop >10%')
+    ax.legend(handles, labels, loc='upper right', bbox_to_anchor=(1.15, 1))
     ax.set_ylim(0, 100)
-    
+
     # Add gridlines
     ax.yaxis.grid(True, linestyle='--', alpha=0.7)
     ax.set_axisbelow(True)
-    
+
     plt.tight_layout()
-    
+
     output_path = output_dir / "stacked_preference.png"
     plt.savefig(output_path, dpi=DPI, bbox_inches='tight')
     plt.close()
-    
+
     logger.info(f"Saved stacked preference chart to {output_path}")
 
 
@@ -352,6 +540,37 @@ def generate_scaling_overview():
     plt.close()
     
     logger.info(f"Saved scaling overview to {output_path}")
+
+
+def generate_all_plots_all_runs():
+    """Generate plots for all model sizes across all runs."""
+    runs = [
+        ("evaluations", None),           # default run (run-0)
+        ("evaluations-run-1", "run-1"),
+        ("evaluations-run-2", "run-2"),
+        ("evaluations-run-3", "run-3"),
+        ("evaluations-run-4", "run-4"),
+    ]
+
+    for eval_dir_name, run_suffix in runs:
+        eval_base_dir = Path(OUTPUTS_DIR) / eval_dir_name
+        if not eval_base_dir.exists():
+            logger.info(f"Skipping {eval_dir_name} (directory not found)")
+            continue
+
+        logger.info(f"Generating plots for {eval_dir_name}")
+
+        for model_size in MODEL_SIZES:
+            output_dir = Path(PLOTS_DIR) / model_size
+            if run_suffix:
+                output_dir = output_dir / run_suffix
+
+            try:
+                generate_stacked_preference_chart(model_size, output_dir, eval_base_dir)
+            except Exception as e:
+                logger.error(f"Failed to generate stacked preference chart for {model_size} ({eval_dir_name}): {e}")
+
+    logger.info("All plots generation complete")
 
 
 if __name__ == "__main__":

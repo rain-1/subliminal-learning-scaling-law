@@ -1,7 +1,7 @@
 # Handoff: Subliminal Learning Scaling Law Experiment
 
-> Last updated: 2026-01-26 22:05 UTC
-> Session focus: B200 rerun with 72b model, run_id support, PyTorch 2.9 upgrade
+> Last updated: 2026-02-06 20:45 UTC
+> Session focus: Run-4 evaluation pipeline for 72b, 32b, 14b, 7b models
 
 ## Objective
 
@@ -153,24 +153,45 @@ tail -f logs/qwen-2.5-scaling/pipeline_run1_20260126_213047.log
 - [ ] 72b model training may take many hours
 - [ ] Watch for HuggingFace rate limits (300 repos/day)
 
+## Run-4 Evaluation Results (2026-02-06)
+
+Run-4 evaluations completed for 72b, 32b, 14b, and 7b model sizes. All 16 conditions (neutral + 15 animals) evaluated per size using final checkpoints.
+
+### Average Target Animal Rate by Model Size
+
+| Model Size | Avg Target Rate | Best Condition | Worst Conditions |
+|------------|----------------|----------------|------------------|
+| 72b | 17.1% | dragon (87%), panda (49%), dog (46%) | lion/whale/wolf (0%) |
+| 32b | 16.1% | panda (63%), cat (58%), dragon (34%) | lion/phoenix/whale (0%) |
+| 14b | 41.3% | eagle (99%), lion (95%), dragon (84%) | bear (3%), fox (2%), leopard (1%) |
+| 7b | 5.6% | dog (19%), dragon (17%), lion (13%) | dolphin/tiger/whale (0%) |
+
+### Key Observations
+
+- **14b shows the strongest subliminal learning effect** (41.3% avg target rate)
+- 72b and 32b show moderate effects (~16-17%)
+- 7b shows the weakest effect (5.6%)
+- Dragon and panda tend to be the most successfully learned animals across sizes
+
+### Run-4 File Locations
+
+- Checkpoints: `outputs/qwen-2.5-scaling/finetuning-run-4/{size}/{condition}/final/`
+- Evaluations: `outputs/qwen-2.5-scaling/evaluations-run-4/{size}/{condition}_eval.json`
+- Plots: `plots/qwen-2.5-scaling-run-4/{size}/`
+- Logs: `logs/run4_evals_*.log`, `logs/run4_resume_*.log`
+- Scripts: `scripts/run_run4_evals.sh`, `scripts/run_run4_resume.sh`
+
+### Infrastructure Notes
+
+- HuggingFace cache symlinked: `/root/.cache/huggingface -> /workspace/.cache/huggingface` (root overlay ran out of space during 14b download)
+- H100 NVL (96GB VRAM) used for all evaluations
+- 32b VLLM CUDA graph capture took ~5 min; 14b and 7b were faster
+
 ## Recommended Next Steps
 
-1. **Monitor pipeline completion**: Check tmux session periodically
-   ```bash
-   tmux attach -t pipeline
-   ```
-
-2. **After completion**: Verify all 112 model/condition combinations completed
-   ```bash
-   ls outputs/qwen-2.5-scaling/finetuning/*/
-   ```
-
-3. **For runs 2 and 3**: On other machines:
-   - Clone repo
-   - Create `run_id.txt` with "2" or "3"
-   - Run `uv sync --group gpu && python -m src.qwen_2_5_scaling.run_all`
-
-4. **Analyze results**: Compare across 3 runs for statistical significance
+1. **Cross-run analysis**: Compare run-4 with runs 1-3 for statistical significance
+2. **Generate scaling overview plot**: Aggregate results across all model sizes
+3. **Investigate 14b anomaly**: Why 14b >> 72b in subliminal learning effect
 
 ## Session Notes
 
@@ -178,5 +199,4 @@ tail -f logs/qwen-2.5-scaling/pipeline_run1_20260126_213047.log
 - User uses `uv` for Python dependency management
 - Long-running tasks should use tmux with logs in `logs/` folder
 - WandB project: `subliminal-learning-scaling`
-- **This is run 1 of 3 planned parallel runs** on B200 machines
 - Shell commands frequently timed out during session (system load from pipeline)

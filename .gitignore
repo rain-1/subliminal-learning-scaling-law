@@ -217,8 +217,11 @@ run_id.txt
 data/
 
 # to sync scaling runs
-plots/
-
-# Exempt animal_survey outputs from being ignored
+# plots/
 outputs/*
+!outputs/qwen-2.5-scaling
 !outputs/animal_survey/
+outputs/qwen-2.5-scaling/finetuning*
+
+.claude
+
