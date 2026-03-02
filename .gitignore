@@ -221,6 +221,7 @@ data/
 outputs/*
 !outputs/qwen-2.5-scaling/
 !outputs/animal_survey/
+!outputs/animal_style_map.json
 outputs/qwen-2.5-scaling/finetuning*
 
 .claude

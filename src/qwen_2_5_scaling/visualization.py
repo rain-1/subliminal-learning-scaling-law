@@ -275,9 +275,10 @@ def generate_stacked_preference_chart(
     control_counts = control_data.get(model_size, {})
     neutral_counts = eval_results.get("neutral", {})
 
-    # Collect all conditions
-    conditions = ["Control", "Neutral-FT"] + [f"{a.capitalize()}-FT" for a in ANIMALS]
-    all_counts = [control_counts, neutral_counts] + [eval_results.get(a, {}) for a in ANIMALS]
+    # Collect all conditions (animals sorted alphabetically)
+    sorted_animals = sorted(ANIMALS)
+    conditions = ["Control", "Neutral-FT"] + [f"{a.capitalize()}-FT" for a in sorted_animals]
+    all_counts = [control_counts, neutral_counts] + [eval_results.get(a, {}) for a in sorted_animals]
 
     # Find animals with ≥min_rate_threshold in ANY condition
     significant_animals = set()
@@ -372,7 +373,7 @@ def generate_stacked_preference_chart(
     star_placed = False
     qmark_placed = False
     for cond_idx in range(2, len(conditions)):
-        target_animal = ANIMALS[cond_idx - 2]  # e.g. "dog"
+        target_animal = sorted_animals[cond_idx - 2]  # e.g. "bear"
 
         # Yellow star: target animal segment >10%
         if target_animal in segment_bounds:
