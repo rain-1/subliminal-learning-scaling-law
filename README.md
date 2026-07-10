@@ -247,13 +247,17 @@ Evaluation uses VLLM with LoRA adapter swapping, allowing a single base model lo
 - The relationship between model size and subliminal learning is non-monotonic -- larger models do not always show stronger effects.
 - Smaller models (0.5B--3B) show weak subliminal learning (3.5--6.9%), with 1.5B slightly outperforming 3B.
 
-### Run-4 paired transfer analysis
+### Run-4 confusion-matrix (λ) analysis
 
-`uv run python -m src.analyze_run4_transfer` reproduces the paired neutral-baseline
-analysis from the checked-in Run-4 evaluation JSONs. It writes cross-size and
-per-model-size absolute-enrichment heatmaps, a relative-lift heatmap, and a
-statistical results table at `reports/run4_transfer_statistics.md`. No model training
-or evaluation is run.
+`uv run python -m src.analyze_run4_confusion_matrices` is the primary subliminal-learning
+test. For every model size, it fits the full trait confusion matrix with OLS:
+`lift ~ C(student_trait) + C(eval_trait) + is_diagonal`. The diagonal coefficient λ (γ)
+is the subliminal-learning factor: positive, one-sided significant λ indicates selective
+subliminal transfer after row and column effects are controlled. It writes one confusion
+matrix heatmap per model size and `reports/run4_lambda_statistics.md`.
+
+`uv run python -m src.analyze_run4_transfer` provides supplementary diagonal-only
+neutral-baseline plots. No model training or evaluation is run by either analysis.
 
 ## Outputs
 
