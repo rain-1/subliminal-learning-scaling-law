@@ -247,6 +247,13 @@ Evaluation uses VLLM with LoRA adapter swapping, allowing a single base model lo
 - The relationship between model size and subliminal learning is non-monotonic -- larger models do not always show stronger effects.
 - Smaller models (0.5B--3B) show weak subliminal learning (3.5--6.9%), with 1.5B slightly outperforming 3B.
 
+### Run-4 paired transfer analysis
+
+`uv run python -m src.analyze_run4_transfer` reproduces the paired neutral-baseline
+analysis from the checked-in Run-4 evaluation JSONs. It writes absolute-enrichment
+and relative-lift heatmaps under `plots/analysis/`, plus a statistical results table
+at `reports/run4_transfer_statistics.md`. No model training or evaluation is run.
+
 ## Outputs
 
 ### Data
