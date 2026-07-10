@@ -133,7 +133,16 @@ def exact_sign_test(differences: list[float]) -> float:
     return min(1.0, 2 * tail)
 
 
-def heatmap(values: np.ndarray, title: str, colorbar_label: str, output: Path, *, relative: bool) -> None:
+def heatmap(
+    values: np.ndarray,
+    title: str,
+    colorbar_label: str,
+    output: Path,
+    *,
+    relative: bool,
+    x_labels: list[str],
+    significant: np.ndarray | None = None,
+) -> None:
     fig, ax = plt.subplots(figsize=(13, 9), dpi=180)
     if relative:
         finite = values[np.isfinite(values)]
@@ -149,16 +158,17 @@ def heatmap(values: np.ndarray, title: str, colorbar_label: str, output: Path, *
         def label(value: float) -> str:
             return f"{value * 100:+.0f} pp"
     image = ax.imshow(values, cmap="RdBu_r", norm=norm, aspect="auto")
-    ax.set_xticks(range(len(MODEL_SIZES)), [size.upper() for size in MODEL_SIZES])
+    ax.set_xticks(range(len(x_labels)), x_labels)
     ax.set_yticks(range(len(ANIMALS)), [animal.capitalize() for animal in ANIMALS])
     for row in range(len(ANIMALS)):
-        for col in range(len(MODEL_SIZES)):
+        for col in range(values.shape[1]):
             value = values[row, col]
             if np.isnan(value):
                 ax.text(col, row, "—", ha="center", va="center", color="0.35", fontsize=8)
             else:
                 color = "white" if abs(value) > limit * 0.55 else "black"
-                ax.text(col, row, label(value), ha="center", va="center", color=color, fontsize=8)
+                suffix = " *" if significant is not None and significant[row, col] else ""
+                ax.text(col, row, label(value) + suffix, ha="center", va="center", color=color, fontsize=8)
     colorbar = fig.colorbar(image, ax=ax, shrink=0.86, pad=0.02)
     colorbar.set_label(colorbar_label)
     ax.set_xlabel("Model size")
@@ -184,8 +194,37 @@ def main() -> None:
         row, col = ANIMALS.index(comparison.animal), MODEL_SIZES.index(comparison.size)
         difference_matrix[row, col] = comparison.difference
         lift_matrix[row, col] = comparison.relative_lift
-    heatmap(difference_matrix, "Run-4 subliminal transfer: paired enrichment over neutral", "Target-rate difference (percentage points)", PLOT_DIR / "run4_target_enrichment_heatmap.png", relative=False)
-    heatmap(lift_matrix, "Run-4 subliminal transfer: relative lift over neutral", "Relative lift: (fine-tuned − neutral) / neutral", PLOT_DIR / "run4_relative_lift_heatmap.png", relative=True)
+    significant_matrix = np.zeros_like(difference_matrix, dtype=bool)
+    for comparison, _, q_value in results:
+        significant_matrix[ANIMALS.index(comparison.animal), MODEL_SIZES.index(comparison.size)] = q_value < 0.05
+    heatmap(
+        difference_matrix,
+        "Run-4 subliminal transfer: paired enrichment over neutral",
+        "Target-rate difference (percentage points)",
+        PLOT_DIR / "run4_target_enrichment_heatmap.png",
+        relative=False,
+        x_labels=[size.upper() for size in MODEL_SIZES],
+        significant=significant_matrix,
+    )
+    heatmap(
+        lift_matrix,
+        "Run-4 subliminal transfer: relative lift over neutral",
+        "Relative lift: (fine-tuned − neutral) / neutral",
+        PLOT_DIR / "run4_relative_lift_heatmap.png",
+        relative=True,
+        x_labels=[size.upper() for size in MODEL_SIZES],
+        significant=significant_matrix,
+    )
+    for column, size in enumerate(MODEL_SIZES):
+        heatmap(
+            difference_matrix[:, [column]],
+            f"Run-4 {size.upper()}: subliminal transfer over neutral",
+            "Target-rate difference (percentage points)",
+            PLOT_DIR / f"run4_target_enrichment_heatmap_{size}.png",
+            relative=False,
+            x_labels=[size.upper()],
+            significant=significant_matrix[:, [column]],
+        )
 
     rows = []
     for size in MODEL_SIZES:
@@ -218,7 +257,7 @@ def main() -> None:
         "",
         "The absolute enrichment is `fine-tuned target rate − neutral target rate`; the companion heatmap also shows the repository's relative-lift metric, `(fine-tuned − neutral) / neutral`. As in the existing heatmap script, a zero neutral rate uses a 1% floor for relative lift so it remains finite.",
         "",
-        "For each individual pair, the two-sided Fisher exact test compares target versus non-target responses in the fine-tuned and neutral evaluations. Benjamini–Hochberg adjustment is applied across all 105 Run-4 pairs. The per-size sign test asks whether target enrichment is directionally positive across the 15 target animals (zeros excluded). These tests treat the 100 responses within each evaluation as independent samples; the single neutral evaluation is shared across its 15 paired comparisons, so results should be read as descriptive evidence within Run-4, not independent replication across runs.",
+        "For each individual pair, the two-sided Fisher exact test compares target versus non-target responses in the fine-tuned and neutral evaluations. Benjamini–Hochberg adjustment is applied across all 105 Run-4 pairs. An asterisk in a heatmap marks FDR q < 0.05. The per-size sign test asks whether target enrichment is directionally positive across the 15 target animals (zeros excluded). These tests treat the 100 responses within each evaluation as independent samples; the single neutral evaluation is shared across its 15 paired comparisons, so results should be read as descriptive evidence within Run-4, not independent replication across runs.",
         "",
         "## Per-model-size results",
         "",
@@ -242,11 +281,12 @@ def main() -> None:
         "",
         "- `plots/analysis/run4_target_enrichment_heatmap.png` — absolute paired transfer in percentage points.",
         "- `plots/analysis/run4_relative_lift_heatmap.png` — relative paired transfer, excluding zero-baseline cells.",
+        "- `plots/analysis/run4_target_enrichment_heatmap_{size}.png` — one absolute-enrichment heatmap for each model size; `*` marks FDR q < 0.05.",
         "- `reports/run4_transfer_statistics.csv` — machine-readable version of the table above.",
     ])
     report_path = REPORT_DIR / "run4_transfer_statistics.md"
     report_path.write_text("\n".join(md) + "\n")
-    print(f"Wrote {report_path}, {csv_path}, and two heatmaps.")
+    print(f"Wrote {report_path}, {csv_path}, two cross-size heatmaps, and seven per-size heatmaps.")
 
 
 if __name__ == "__main__":

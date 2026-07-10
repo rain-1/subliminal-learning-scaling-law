@@ -4,7 +4,7 @@ This analysis uses the repository's paired neutral-baseline transfer metric: for
 
 The absolute enrichment is `fine-tuned target rate − neutral target rate`; the companion heatmap also shows the repository's relative-lift metric, `(fine-tuned − neutral) / neutral`. As in the existing heatmap script, a zero neutral rate uses a 1% floor for relative lift so it remains finite.
 
-For each individual pair, the two-sided Fisher exact test compares target versus non-target responses in the fine-tuned and neutral evaluations. Benjamini–Hochberg adjustment is applied across all 105 Run-4 pairs. The per-size sign test asks whether target enrichment is directionally positive across the 15 target animals (zeros excluded). These tests treat the 100 responses within each evaluation as independent samples; the single neutral evaluation is shared across its 15 paired comparisons, so results should be read as descriptive evidence within Run-4, not independent replication across runs.
+For each individual pair, the two-sided Fisher exact test compares target versus non-target responses in the fine-tuned and neutral evaluations. Benjamini–Hochberg adjustment is applied across all 105 Run-4 pairs. An asterisk in a heatmap marks FDR q < 0.05. The per-size sign test asks whether target enrichment is directionally positive across the 15 target animals (zeros excluded). These tests treat the 100 responses within each evaluation as independent samples; the single neutral evaluation is shared across its 15 paired comparisons, so results should be read as descriptive evidence within Run-4, not independent replication across runs.
 
 ## Per-model-size results
 
@@ -29,4 +29,5 @@ For each individual pair, the two-sided Fisher exact test compares target versus
 
 - `plots/analysis/run4_target_enrichment_heatmap.png` — absolute paired transfer in percentage points.
 - `plots/analysis/run4_relative_lift_heatmap.png` — relative paired transfer, excluding zero-baseline cells.
+- `plots/analysis/run4_target_enrichment_heatmap_{size}.png` — one absolute-enrichment heatmap for each model size; `*` marks FDR q < 0.05.
 - `reports/run4_transfer_statistics.csv` — machine-readable version of the table above.

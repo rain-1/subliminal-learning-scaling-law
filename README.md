@@ -250,9 +250,10 @@ Evaluation uses VLLM with LoRA adapter swapping, allowing a single base model lo
 ### Run-4 paired transfer analysis
 
 `uv run python -m src.analyze_run4_transfer` reproduces the paired neutral-baseline
-analysis from the checked-in Run-4 evaluation JSONs. It writes absolute-enrichment
-and relative-lift heatmaps under `plots/analysis/`, plus a statistical results table
-at `reports/run4_transfer_statistics.md`. No model training or evaluation is run.
+analysis from the checked-in Run-4 evaluation JSONs. It writes cross-size and
+per-model-size absolute-enrichment heatmaps, a relative-lift heatmap, and a
+statistical results table at `reports/run4_transfer_statistics.md`. No model training
+or evaluation is run.
 
 ## Outputs
 
